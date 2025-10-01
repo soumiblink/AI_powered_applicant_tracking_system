@@ -42,6 +42,7 @@ const ScoreCircle = ({ score = 75 }: { score: number }) => {
           strokeLinecap="round"
         />
       </svg>
+      
 
       {/* Score and issues */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">

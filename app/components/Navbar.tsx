@@ -32,6 +32,7 @@ const Navbar = () => {
           RESUMIND
         </Link>
       </div>
+      
 
       {/* Right Section: Action Links */}
       <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-2 sm:m-0">
