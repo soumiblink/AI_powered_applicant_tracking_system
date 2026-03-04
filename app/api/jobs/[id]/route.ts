@@ -1,20 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
+/* ================= GET ================= */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = await context.params;
 
     const job = await prisma.job.findFirst({
       where: {
@@ -24,31 +25,32 @@ export async function GET(
     });
 
     if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
     return NextResponse.json({ job });
   } catch (error) {
-    console.error('Get job error:', error);
+    console.error("Get job error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch job' },
+      { error: "Failed to fetch job" },
       { status: 500 }
     );
   }
 }
 
+/* ================= PATCH ================= */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await request.json();
     const { company, role, jobDescription, status, notes } = body;
 
@@ -60,7 +62,7 @@ export async function PATCH(
     });
 
     if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
     const updatedJob = await prisma.job.update({
@@ -76,26 +78,27 @@ export async function PATCH(
 
     return NextResponse.json({ job: updatedJob });
   } catch (error) {
-    console.error('Update job error:', error);
+    console.error("Update job error:", error);
     return NextResponse.json(
-      { error: 'Failed to update job' },
+      { error: "Failed to update job" },
       { status: 500 }
     );
   }
 }
 
+/* ================= DELETE ================= */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = await context.params;
 
     const job = await prisma.job.findFirst({
       where: {
@@ -105,7 +108,7 @@ export async function DELETE(
     });
 
     if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
     await prisma.job.delete({
@@ -114,9 +117,9 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete job error:', error);
+    console.error("Delete job error:", error);
     return NextResponse.json(
-      { error: 'Failed to delete job' },
+      { error: "Failed to delete job" },
       { status: 500 }
     );
   }
