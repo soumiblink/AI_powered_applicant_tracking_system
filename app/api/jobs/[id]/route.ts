@@ -3,10 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-/* ================= GET ================= */
+/* ============ GET ALL JOBS ============ */
 export async function GET(
-  request: NextRequest,
-  context: any
+  request: NextRequest
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,33 +14,24 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await context.params;
-
-    const job = await prisma.job.findFirst({
-      where: {
-        id,
-        userId: session.user.id,
-      },
+    const jobs = await prisma.job.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (!job) {
-      return NextResponse.json({ error: "Job not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ job });
+    return NextResponse.json({ jobs });
   } catch (error) {
-    console.error("Get job error:", error);
+    console.error("Get jobs error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch job" },
+      { error: "Failed to fetch jobs" },
       { status: 500 }
     );
   }
 }
 
-/* ================= PATCH ================= */
-export async function PATCH(
-  request: NextRequest,
-  context: any
+/* ============ CREATE JOB ============ */
+export async function POST(
+  request: NextRequest
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -50,76 +40,25 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await context.params;
     const body = await request.json();
     const { company, role, jobDescription, status, notes } = body;
 
-    const job = await prisma.job.findFirst({
-      where: {
-        id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!job) {
-      return NextResponse.json({ error: "Job not found" }, { status: 404 });
-    }
-
-    const updatedJob = await prisma.job.update({
-      where: { id },
+    const job = await prisma.job.create({
       data: {
-        ...(company && { company }),
-        ...(role && { role }),
-        ...(jobDescription && { jobDescription }),
-        ...(status && { status }),
-        ...(notes !== undefined && { notes }),
-      },
-    });
-
-    return NextResponse.json({ job: updatedJob });
-  } catch (error) {
-    console.error("Update job error:", error);
-    return NextResponse.json(
-      { error: "Failed to update job" },
-      { status: 500 }
-    );
-  }
-}
-
-/* ================= DELETE ================= */
-export async function DELETE(
-  request: NextRequest,
-  context: any
-) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = await context.params;
-
-    const job = await prisma.job.findFirst({
-      where: {
-        id,
+        company,
+        role,
+        jobDescription,
+        status,
+        notes,
         userId: session.user.id,
       },
     });
 
-    if (!job) {
-      return NextResponse.json({ error: "Job not found" }, { status: 404 });
-    }
-
-    await prisma.job.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ job });
   } catch (error) {
-    console.error("Delete job error:", error);
+    console.error("Create job error:", error);
     return NextResponse.json(
-      { error: "Failed to delete job" },
+      { error: "Failed to create job" },
       { status: 500 }
     );
   }
