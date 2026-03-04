@@ -1,3 +1,9 @@
 {
-  "cSpell.words": ["daisyui", "Puter", "Resumind", "uplader"]
+  "cSpell.words": [
+    "daisyui",
+    "Puter",
+    "Resumind",
+    "uplader"
+  ],
+  "typescript.autoClosingTags": false
 }
